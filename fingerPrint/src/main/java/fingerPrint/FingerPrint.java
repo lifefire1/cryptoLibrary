@@ -24,6 +24,18 @@ class FingerPrint {
         // [0] - count endPoint
         // [1] - count branchPoint
         System.out.println(Arrays.toString(countSpecialPoint(binaryImage)));
+
+        int [][] binaryImage2 = binarizeImage("fingerPrint/src/main/java/fingerPrint/img/102_1.tif");
+        binaryImage2 = skeletonize(binaryImage2);
+        // [0] - count endPoint
+        // [1] - count branchPoint
+        System.out.println(Arrays.toString(countSpecialPoint(binaryImage2)));
+
+        int [][] binaryImage3 = binarizeImage("fingerPrint/src/main/java/fingerPrint/img/102_2.tif");
+        binaryImage3 = skeletonize(binaryImage3);
+        // [0] - count endPoint
+        // [1] - count branchPoint
+        System.out.println(Arrays.toString(countSpecialPoint(binaryImage3)));
     }
 
     public static int[] countSpecialPoint(int[][] image) {
