@@ -20,22 +20,41 @@ class skiletTmp {
 class FingerPrint {
     public static void main(String[] args) throws IOException{
         int [][] binaryImage = binarizeImage("fingerPrint/src/main/java/fingerPrint/img/101_1.tif");
+        killNoize(binaryImage);
+        writeGrayImage(binaryImage, "killNoize.png");
         binaryImage = skeletonize(binaryImage);
+
         // [0] - count endPoint
         // [1] - count branchPoint
         System.out.println(Arrays.toString(countSpecialPoint(binaryImage)));
+    }
 
-        int [][] binaryImage2 = binarizeImage("fingerPrint/src/main/java/fingerPrint/img/102_1.tif");
-        binaryImage2 = skeletonize(binaryImage2);
-        // [0] - count endPoint
-        // [1] - count branchPoint
-        System.out.println(Arrays.toString(countSpecialPoint(binaryImage2)));
-
-        int [][] binaryImage3 = binarizeImage("fingerPrint/src/main/java/fingerPrint/img/102_2.tif");
-        binaryImage3 = skeletonize(binaryImage3);
-        // [0] - count endPoint
-        // [1] - count branchPoint
-        System.out.println(Arrays.toString(countSpecialPoint(binaryImage3)));
+    public static void killNoize(int[][] image) {
+        // Проходим по всем пикселям, кроме краев
+        for (int i = 1; i < image.length - 1; i++) {
+            for (int j = 1; j < image[0].length - 1; j++) {
+                // Подсчитываем количество черных соседей текущего пикселя
+                int blackNeighbors = countBlackNeighbors(image, i, j);
+                // Если количество черных соседей меньше семи, текущий пиксель становится белым
+                if (blackNeighbors < 3) {
+                    image[i][j] = Color.WHITE.getRGB(); // 255 - это белый цвет
+                }
+            }
+        }
+    }
+    
+    // Метод для подсчета количества черных соседей у заданного пикселя
+    public static int countBlackNeighbors(int[][] image, int row, int col) {
+        int blackCount = 0;
+        for (int i = row - 1; i <= row + 1; i++) {
+            for (int j = col - 1; j <= col + 1; j++) {
+                // Если текущий пиксель - черный и это не центральный пиксель, увеличиваем счетчик
+                if (image[i][j] == Color.BLACK.getRGB() && (i != row || j != col)) {
+                    blackCount++;
+                }
+            }
+        }
+        return blackCount;
     }
 
     public static int[] countSpecialPoint(int[][] image) {
