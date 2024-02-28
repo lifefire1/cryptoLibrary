@@ -1,30 +1,297 @@
-package main.java.fingerPrint;
+package fingerPrint;
 
-import java.awt.Image;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOError;
 import java.io.IOException;
+import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 
+/**
+ * skilet
+ */
+class skiletTmp {
+
+    int [][] currentImage;
+    boolean status;    
+}
+
 class FingerPrint {
     public static void main(String[] args) throws IOException{
-        String resPath = binarizeImage("fingerPrint/src/main/java/fingerPrint/img/101_1.tif");
-        skeletonization(resPath);
+        int [][] binaryImage = binarizeImage("fingerPrint/src/main/java/fingerPrint/img/101_1.tif");
+        binaryImage = skeletonize(binaryImage);
+        // [0] - count endPoint
+        // [1] - count branchPoint
+        System.out.println(Arrays.toString(countSpecialPoint(binaryImage)));
     }
 
-    public static String skeletonization(String filePath){
-
-        return null;
+    public static int[] countSpecialPoint(int[][] image) {
+        int[] answer = new int[2];
+        int firstCount = 0;
+        int secondCount = 0;
+    
+        // Проходим по всем пикселям, кроме краев
+        for (int i = 1; i < image.length - 1; i++) {
+            for (int j = 1; j < image[0].length - 1; j++) {
+                // Проверяем окрестность текущего пикселя 3x3
+                int countBlack = 0;
+                for (int m = i - 1; m <= i + 1; m++) {
+                    for (int n = j - 1; n <= j + 1; n++) {
+                        if (image[m][n] == Color.BLACK.getRGB()) { // Если текущий пиксель черный
+                            countBlack++;
+                        }
+                    }
+                }
+                // Если только один черный пиксель в окрестности, увеличиваем firstCount
+                if (countBlack == 1) {
+                    firstCount++;
+                }
+                // Если три черных пикселя в окрестности, увеличиваем secondCount
+                else if (countBlack == 3) {
+                    secondCount++;
+                }
+            }
+        }
+    
+        // Записываем результаты в массив ответа
+        answer[0] = firstCount;
+        answer[1] = secondCount;
+    
+        return answer;
     }
 
-    public static String binarizeImage(String pathToImage) throws IOException{
+    public static int [][] skeletonize(int [][] image) throws IOException{
+        int [][] structPattern = {
+            {Color.WHITE.getRGB(),                  0,                   0},
+            {Color.BLACK.getRGB(),Color.BLACK.getRGB(),                  0},
+            {Color.WHITE.getRGB(),Color.BLACK.getRGB(),Color.WHITE.getRGB()},
+        };
+        int iter = 0;
+        while (corrosive(image, structPattern)) {
+            iter++;
+        }
+        // System.out.println("first corrosive = " + iter);
+
+        iter = 0;
+
+        int [][] structPattern2 = {
+            {0,                     Color.BLACK.getRGB(),   0},
+            {Color.BLACK.getRGB(),  Color.BLACK.getRGB(),   Color.WHITE.getRGB()},
+            {0,                     Color.WHITE.getRGB(),   Color.WHITE.getRGB()},
+        };
+
+        while (corrosive(image, structPattern2)) {
+            iter++;
+        }
+
+        // System.out.println("second corrosive = " + iter);
+
+        iter = 0;
+
+        int [][] structPattern3 = {
+            {0,                     Color.BLACK.getRGB(),   0},
+            {Color.WHITE.getRGB(),  Color.BLACK.getRGB(),   Color.BLACK.getRGB()},
+            {Color.WHITE.getRGB(),  Color.WHITE.getRGB(),   0},
+        };
+        while (corrosive(image, structPattern3)) {
+            iter++;
+        }
+
+        // System.out.println("third corrosive = " + iter);
+
+        iter = 0;
+
+        int [][] structPattern4 = {
+            {Color.WHITE.getRGB(),  Color.WHITE.getRGB(),   0},
+            {Color.WHITE.getRGB(),  Color.BLACK.getRGB(),   Color.BLACK.getRGB()},
+            {0,                     Color.BLACK.getRGB(),   0},
+        };
+
+        while (corrosive(image, structPattern4)) {
+            iter++;
+        }
+
+
+        // System.out.println("four corrosive = " + iter);
+
+        iter = 0;
+
+
+        int [][] structPattern5 = {
+            {Color.WHITE.getRGB(),  Color.WHITE.getRGB(),   Color.WHITE.getRGB()},
+            {Color.BLACK.getRGB(),  Color.BLACK.getRGB(),   Color.BLACK.getRGB()},
+            {0,                     Color.BLACK.getRGB(),   0},
+        };
+
+        while (corrosive(image, structPattern5)) {
+            iter++;
+        }
+
+        // System.out.println("five corrosive = " + iter);
+
+        iter = 0;
+
+        int [][] structPattern6 = {
+            {0,                     Color.BLACK.getRGB(),   Color.WHITE.getRGB()},
+            {Color.BLACK.getRGB(),  Color.BLACK.getRGB(),   Color.WHITE.getRGB()},
+            {0,                     Color.BLACK.getRGB(),   Color.WHITE.getRGB()},
+        };
+
+        while (corrosive(image, structPattern6)) {
+            iter++;
+        }
+
+        // System.out.println("six corrosive = " + iter);
+
+        iter = 0;
+
+        int [][] structPattern7 = {
+            {Color.WHITE.getRGB(),  Color.BLACK.getRGB(),   0},
+            {Color.WHITE.getRGB(),  Color.BLACK.getRGB(),   Color.BLACK.getRGB()},
+            {Color.WHITE.getRGB(),  Color.BLACK.getRGB(),   0},
+        };
+
+        while (corrosive(image, structPattern7)) {
+            iter++;
+        }
+
+        // System.out.println("seven corrosive = " + iter);
+
+        iter = 0;
+
+        int [][] structPattern8 = {
+            {0                   ,  Color.BLACK.getRGB(),   0},
+            {Color.BLACK.getRGB(),  Color.BLACK.getRGB(),   Color.BLACK.getRGB()},
+            {Color.WHITE.getRGB(),  Color.WHITE.getRGB(),   Color.WHITE.getRGB()},
+        };
+
+        while (corrosive(image, structPattern8)) {
+            iter++;
+        }
+
+        // System.out.println("eight corrosive = " + iter);
+
+        int [][] structPattern9 = {
+            {Color.WHITE.getRGB(),  Color.WHITE.getRGB(),   Color.WHITE.getRGB()},
+            {Color.WHITE.getRGB(),  Color.BLACK.getRGB(),   Color.WHITE.getRGB()},
+            {Color.WHITE.getRGB(),  Color.WHITE.getRGB(),   Color.WHITE.getRGB()},
+        };
+
+        while (corrosive(image, structPattern9)) {
+            iter++;
+        }
+
+        // System.out.println("nine corrosive = " + iter);
+
+        iter = 0;
+
+        int [][] structPattern10 = {
+            {Color.WHITE.getRGB(),  Color.WHITE.getRGB(),   Color.WHITE.getRGB()},
+            {Color.WHITE.getRGB(),  Color.BLACK.getRGB(),   Color.WHITE.getRGB()},
+            {Color.BLACK.getRGB(),  Color.BLACK.getRGB(),   Color.BLACK.getRGB()},
+        };
+
+        while (corrosive(image, structPattern10)) {
+            iter++;
+        }
+
+        // System.out.println("ten corrosive = " + iter);
+        
+
+
+        iter = 0;
+
+        int [][] structPattern11 = {
+            {Color.WHITE.getRGB(),  Color.WHITE.getRGB(),   Color.WHITE.getRGB()},
+            {Color.WHITE.getRGB(),  Color.BLACK.getRGB(),   Color.WHITE.getRGB()},
+            {Color.BLACK.getRGB(),  Color.BLACK.getRGB(),   Color.WHITE.getRGB()},
+        };
+
+        while (corrosive(image, structPattern11)) {
+            iter++;
+        }
+
+        // System.out.println("eleven corrosive = " + iter);
+
+
+        iter = 0;
+
+        int [][] structPattern12 = {
+            {Color.WHITE.getRGB(),  Color.WHITE.getRGB(),   Color.WHITE.getRGB()},
+            {Color.WHITE.getRGB(),  Color.BLACK.getRGB(),   Color.WHITE.getRGB()},
+            {Color.WHITE.getRGB(),  Color.BLACK.getRGB(),   Color.BLACK.getRGB()},
+        };
+
+        while (corrosive(image, structPattern12)) {
+            iter++;
+        }
+
+        // System.out.println("twelve corrosive = " + iter);
+
+        writeGrayImage(image, "skeleton.png");
+        return image;
+    }
+
+    public static boolean corrosive(int [][] image, int [][] structPattern){
+        int [][] skillet = new int[image.length][image[0].length];
+        boolean status = false;
+        for(int i = 1; i < image.length - 2; i++){
+            for(int j = 1; j < image[0].length - 2; j++){
+                if(isHit(i,j, image, structPattern)){
+                    image[i][j] = Color.WHITE.getRGB();
+                    status = true;
+                }
+            }
+        }
+        skiletTmp tmp = new skiletTmp();
+        tmp.currentImage = skillet;
+        tmp.status = status;
+        return status;
+    }
+
+    public static boolean isHit(int i, int j, int[][] image, int[][] structPattern) {
+        int[][] tmp = new int[structPattern.length][structPattern[0].length];
+    
+        for (int k = 0; k < structPattern.length; k++) {
+            for (int l = 0; l < structPattern[0].length; l++) {
+                int imageRow = i + k - 1;
+                int imageCol = j + l - 1;
+                if (imageRow >= 0 && imageRow < image.length && imageCol >= 0 && imageCol < image[0].length) {
+                    tmp[k][l] = image[imageRow][imageCol];
+                } else {
+                    // Здесь вы можете установить значение по умолчанию, если выходите за пределы изображения
+                    tmp[k][l] = 0;
+                }
+            }
+        }
+    
+        // Сравниваем tmp с structPattern
+        for (int k = 0; k < structPattern.length; k++) {
+            for (int l = 0; l < structPattern[0].length; l++) {
+                // Если элемент в structPattern равен 1, то элемент в tmp должен быть также 1
+                if(structPattern[k][l] == 0){
+                    continue;
+                }
+                else if (structPattern[k][l] == Color.BLACK.getRGB() && tmp[k][l] != Color.BLACK.getRGB()) {
+                    return false; // Не совпадает, возвращаем false
+                }
+                else if(structPattern[k][l] == Color.WHITE.getRGB() && tmp[k][l] != Color.WHITE.getRGB()){
+                    return false;
+                }
+            }
+        }
+    
+        // Если все элементы structPattern равны 1 и соответствующие элементы в tmp также равны 1, возвращаем true
+        return true;
+    }
+
+    public static int [][] binarizeImage(String pathToImage) throws IOException{
         File file = new File(pathToImage);
         int [][]greyPicture = greyGrad(file);
         greyPicture = bradleyThreshold(greyPicture);
         writeGrayImage(greyPicture, "result.png");
-        return "result.png";
+        return greyPicture;
     }
 
     public static int[][] convertFileToMatrix(File file) throws IOException{
@@ -90,9 +357,9 @@ class FingerPrint {
                 sum = integralImage[y2 * width + x2] - integralImage[y1 * width + x2] -
                         integralImage[y2 * width + x1] + integralImage[y1 * width + x1];
                 if (src[i][j] * count < sum * (1.0f - t))
-                    binaryImage[i][j] = 0;
+                    binaryImage[i][j] = Color.BLACK.getRGB();
                 else
-                    binaryImage[i][j] = 255;
+                    binaryImage[i][j] = Color.WHITE.getRGB();
             }
         }
 
